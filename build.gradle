@@ -1,0 +1,62 @@
+buildscript {
+    ext {
+        springBootVersion = '1.2.3.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("io.spring.gradle:dependency-management-plugin:0.5.1.RELEASE")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+apply plugin: 'war'
+
+war {
+    baseName = 'diary'
+    version = '0.0.1-SNAPSHOT'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    providedRuntime
+}
+
+dependencies {
+    compile "org.springframework.boot:spring-boot-starter-security"
+    compile("org.springframework.boot:spring-boot-starter-data-mongodb")
+    compile "org.springframework.boot:spring-boot-starter-data-rest"
+    compile "org.springframework.boot:spring-boot-starter-tomcat"
+
+    compile('javax.el:el-api:2.2')
+
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.5.0'
+
+    runtime('javax.servlet:servlet-api:2.5')
+    runtime("mysql:mysql-connector-java")
+
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+    testCompile "com.jayway.restassured:rest-assured:2.4.0"
+    testCompile "com.jayway.restassured:spring-mock-mvc:2.4.0"
+}
+
+idea {
+    module {
+//        testSourceDirs += file('src/integTest/groovy')
+//        testSourceDirs += file('src/integTest/resources')
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}
