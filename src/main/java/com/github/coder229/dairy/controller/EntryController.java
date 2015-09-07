@@ -1,12 +1,12 @@
 package com.github.coder229.dairy.controller;
 
 import com.github.coder229.dairy.model.Entry;
-import com.github.coder229.dairy.repository.EntryRepository;
+import com.github.coder229.dairy.repository.EntriesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -17,7 +17,7 @@ import java.util.List;
 public class EntryController {
 
     @Autowired
-    private EntryRepository entryRepository;
+    private EntriesRepository entryRepository;
 
     @RequestMapping(method= RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
@@ -25,9 +25,27 @@ public class EntryController {
         return entryRepository.findAll();
     }
 
-    @RequestMapping(method=RequestMethod.POST)
+    @RequestMapping(value="/{entryId}", method= RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> get(@PathVariable String entryId) {
+        Entry entry = entryRepository.findOne(entryId);
+
+        if (entry != null) {
+            return new ResponseEntity<>(entry, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>("Entry not found", HttpStatus.NOT_FOUND);
+    }
+
+    @RequestMapping(method=RequestMethod.POST)
+    @ResponseStatus(HttpStatus.CREATED)
     public Entry create(@RequestBody Entry entry) {
         return entryRepository.save(entry);
+    }
+
+    @RequestMapping(value="/{entryId}", method= RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.OK)
+    public void delete(@PathVariable String entryId) {
+        entryRepository.delete(entryId);
     }
 }

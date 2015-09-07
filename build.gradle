@@ -12,9 +12,9 @@ buildscript {
 }
 
 apply plugin: 'java'
-apply plugin: 'idea'
 apply plugin: 'spring-boot'
 apply plugin: 'war'
+apply plugin: 'application'
 
 war {
     baseName = 'diary'
@@ -23,6 +23,7 @@ war {
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+mainClassName = "com.github.coder229.dairy.DiaryApplication"
 
 repositories {
     mavenCentral()
@@ -36,25 +37,14 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-security"
     compile("org.springframework.boot:spring-boot-starter-data-mongodb")
     compile "org.springframework.boot:spring-boot-starter-data-rest"
-    compile "org.springframework.boot:spring-boot-starter-tomcat"
-
-    compile('javax.el:el-api:2.2')
-
     compile 'com.fasterxml.jackson.core:jackson-databind:2.5.0'
+    compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.4.0'
 
-    runtime('javax.servlet:servlet-api:2.5')
-    runtime("mysql:mysql-connector-java")
+    providedRuntime "org.springframework.boot:spring-boot-starter-tomcat"
 
     testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile "com.jayway.restassured:rest-assured:2.4.0"
     testCompile "com.jayway.restassured:spring-mock-mvc:2.4.0"
-}
-
-idea {
-    module {
-//        testSourceDirs += file('src/integTest/groovy')
-//        testSourceDirs += file('src/integTest/resources')
-    }
 }
 
 task wrapper(type: Wrapper) {

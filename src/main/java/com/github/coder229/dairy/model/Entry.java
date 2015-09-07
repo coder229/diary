@@ -3,7 +3,7 @@ package com.github.coder229.dairy.model;
 import org.springframework.data.annotation.Id;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.time.LocalDate;
+import java.util.Date;
 
 /**
  * Created by scott on 9/2/2015.
@@ -13,7 +13,11 @@ public class Entry {
 
     @Id
     private String id;
-    private LocalDate date;
+
+    private String userId;
+
+    private Date date;
+
     private String notes;
 
     public String getId() {
@@ -24,11 +28,19 @@ public class Entry {
         this.id = id;
     }
 
-    public LocalDate getDate() {
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 
