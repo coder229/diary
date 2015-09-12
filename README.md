@@ -1,2 +1,3 @@
 # diary
-App for keeping a daily diary
+App for keeping a daily diary.  A work in progress...
+

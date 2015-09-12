@@ -11,10 +11,11 @@ buildscript {
     }
 }
 
-apply plugin: 'java'
 apply plugin: 'spring-boot'
 apply plugin: 'war'
-apply plugin: 'application'
+apply plugin: 'groovy'
+apply plugin: 'idea'
+apply plugin: 'io.spring.dependency-management'
 
 war {
     baseName = 'diary'
@@ -23,7 +24,6 @@ war {
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
-mainClassName = "com.github.coder229.dairy.DiaryApplication"
 
 repositories {
     mavenCentral()
@@ -34,13 +34,17 @@ configurations {
 }
 
 dependencies {
-    compile "org.springframework.boot:spring-boot-starter-security"
-    compile("org.springframework.boot:spring-boot-starter-data-mongodb")
+    compile("org.springframework.boot:spring-boot-starter-security") {
+        exclude module: "spring-boot-starter-tomcat"
+    }
+    compile "org.springframework.boot:spring-boot-starter-data-mongodb"
     compile "org.springframework.boot:spring-boot-starter-data-rest"
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.5.0'
-    compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.4.0'
+    compile "org.springframework.boot:spring-boot-starter-undertow"
+    compile "org.springframework.boot:spring-boot-starter-actuator"
 
-    providedRuntime "org.springframework.boot:spring-boot-starter-tomcat"
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.5.0'
+    compile 'org.codehaus.groovy:groovy'
+    compile 'javax.el:el-api:2.2'
 
     testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile "com.jayway.restassured:rest-assured:2.4.0"
