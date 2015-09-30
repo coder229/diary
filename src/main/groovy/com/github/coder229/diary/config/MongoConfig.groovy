@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.github.coder229.diary.repository
+package com.github.coder229.diary.config
 
 import com.mongodb.MongoClient
 import com.mongodb.WriteConcern
@@ -19,7 +19,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
  * @author scott
  */
 @Configuration
-@EnableMongoRepositories()
+@EnableMongoRepositories(basePackages = ['com.github.coder229.diary'])
 @ComponentScan()
 class MongoConfig extends AbstractMongoConfiguration {
 

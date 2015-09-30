@@ -1,7 +1,10 @@
-package com.github.coder229.dairy.controller
+package com.github.coder229.dairy.entry
 
 import com.github.coder229.diary.DiaryApplication
-import com.github.coder229.diary.model.Entry
+import com.github.coder229.diary.entry.Entry
+import com.github.coder229.diary.security.TokenHandler
+import com.github.coder229.diary.user.User
+import com.github.coder229.diary.user.UserRepository
 import com.jayway.restassured.RestAssured
 import com.jayway.restassured.http.ContentType
 import com.jayway.restassured.path.json.JsonPath
@@ -11,13 +14,14 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.IntegrationTest
 import org.springframework.boot.test.SpringApplicationConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.web.WebAppConfiguration
 
-import java.text.SimpleDateFormat
+import java.time.LocalDateTime
 
 import static com.jayway.restassured.RestAssured.given
 import static org.hamcrest.Matchers.equalTo
@@ -36,11 +40,20 @@ class EntryControllerTest {
     @Value('${local.server.port}')
     int serverPort
 
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd")
+    @Autowired
+    UserRepository userRepository
+
+    @Autowired
+    TokenHandler tokenHandler
+
+    User user
 
     @Before
     void setup() {
         RestAssured.port = serverPort
+        user = userRepository.findByUsername('user')
+        user.accessToken = tokenHandler.createTokenForUser(user, LocalDateTime.now().plusDays(1))
+        userRepository.save(user)
     }
 
     @Test
@@ -53,7 +66,7 @@ class EntryControllerTest {
         // @formatter:off
         Response response = given().
                 contentType(ContentType.JSON).
-                auth().basic("user", "password").
+                header('X-AUTH-TOKEN', user.accessToken).
                 body(entry).
             when().
                 post("/api/entries").
@@ -72,7 +85,7 @@ class EntryControllerTest {
         // @formatter:off
         response = given().
                 contentType(ContentType.JSON).
-                auth().basic("user", "password").
+                header('X-AUTH-TOKEN', user.accessToken).
             when().
                 get("/api/entries/" + entryId).
             then().
@@ -87,7 +100,7 @@ class EntryControllerTest {
         // @formatter:off
         given().
                 contentType(ContentType.JSON).
-                auth().basic("user", "password").
+                header('X-AUTH-TOKEN', user.accessToken).
             when().
                 delete("/api/entries/" + entryId).
             then().
@@ -97,14 +110,13 @@ class EntryControllerTest {
         // @formatter:off
         given().
                 contentType(ContentType.JSON).
-                auth().basic("user", "password").
+                header('X-AUTH-TOKEN', user.accessToken).
             when().
                 get("/api/entries/" + entryId).
             then().
                 statusCode(HttpStatus.SC_NOT_FOUND)
         // @formatter:on
     }
-
 
     @Test
     public void testCreateListRemoveEntry() {
@@ -116,7 +128,7 @@ class EntryControllerTest {
         // @formatter:off
         Response response = given().
                 contentType(ContentType.JSON).
-                auth().basic("user", "password").
+                header('X-AUTH-TOKEN', user.accessToken).
                 body(entry).
             when().
                 post("/api/entries").
@@ -135,7 +147,7 @@ class EntryControllerTest {
         // @formatter:off
         response = given().
                 contentType(ContentType.JSON).
-                auth().basic("user", "password").
+                header('X-AUTH-TOKEN', user.accessToken).
             when().
                 get("/api/entries").
             then().
@@ -156,12 +168,12 @@ class EntryControllerTest {
                 found = true
             }
         }
-        Assert.assertTrue("Entry not found in list", found)
+        Assert.assertTrue(found)
 
         // @formatter:off
         given().
                 contentType(ContentType.JSON).
-                auth().basic("user", "password").
+                header('X-AUTH-TOKEN', user.accessToken).
             when().
                 delete("/api/entries/" + entryId).
             then().

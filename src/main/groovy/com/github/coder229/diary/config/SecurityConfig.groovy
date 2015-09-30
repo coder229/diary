@@ -1,9 +1,10 @@
-package com.github.coder229.diary
+package com.github.coder229.diary.config
 
-import com.github.coder229.diary.model.Account
-import com.github.coder229.diary.repository.AccountsRepository
+import com.github.coder229.diary.security.StatelessAuthFilter
+import com.github.coder229.diary.user.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -14,6 +15,7 @@ import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 /**
  * Created by scott on 9/2/2015.
@@ -23,23 +25,22 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    AccountsRepository accountRepository;
+    UserRepository accountRepository
+
+    @Autowired
+    StatelessAuthFilter statelessAuthFilter
 
     @Autowired
     void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        // @formatter:off
         auth.userDetailsService(userDetailsService())
-//            .inMemoryAuthentication()
-//            .withUser("user").password("password").roles("USER")
-        // @formatter:on
     }
 
     @Override
     UserDetailsService userDetailsService() {
-        return new UserDetailsService() {
+        new UserDetailsService() {
             @Override
             UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-                Account account = accountRepository.findByUsername(username)
+                com.github.coder229.diary.user.User account = accountRepository.findByUsername(username)
 
                 if (account == null) {
                     throw new UsernameNotFoundException("could not find the account '"
@@ -50,7 +51,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
                         account.isEnabled(), true, true, true,
                         AuthorityUtils.createAuthorityList("USER"))
             }
-        };
+        }
     }
 
     @Override
@@ -58,24 +59,19 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
         // TODO http://angularjs-best-practices.blogspot.com/2013/07/angularjs-and-xsrfcsrf-cross-site.html
 
         // @formatter:off
-//        http
-//            .csrf().disable()
-//            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//        .and()
-//            .authorizeRequests()
-//                .antMatchers("/api").permitAll()
-//                .anyRequest().authenticated()
-//        .and()
-//            .anonymous()
-//                .antMatchers("/index.html").permitAll()
-//        ;
-
-        http.authorizeRequests().anyRequest().fullyAuthenticated()
-            .and()
-                .httpBasic()
-            .and()
-                .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        http.csrf().disable()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        .and()
+            .authorizeRequests()
+            .antMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
+            .antMatchers("/login").permitAll()
+            .antMatchers("/**/*.html").permitAll()
+            .antMatchers("/scripts/**").permitAll()
+            .antMatchers("/styles/**").permitAll()
+            .antMatchers("/userinfo").authenticated()
+            .antMatchers("/api/**").authenticated()
+        .and()
+            .addFilterBefore(statelessAuthFilter, UsernamePasswordAuthenticationFilter)
         // @formatter:on
     }
 }

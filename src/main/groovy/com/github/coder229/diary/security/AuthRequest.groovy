@@ -1,4 +1,4 @@
-package com.github.coder229.diary.dto
+package com.github.coder229.diary.security
 
 /**
  * Created by scott on 9/8/2015.

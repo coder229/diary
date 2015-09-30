@@ -1,7 +1,5 @@
-package com.github.coder229.diary.controller
+package com.github.coder229.diary.entry
 
-import com.github.coder229.diary.model.Entry
-import com.github.coder229.diary.repository.EntriesRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -11,11 +9,11 @@ import org.springframework.web.bind.annotation.*
  * Created by scott on 9/2/2015.
  */
 @RestController
-@RequestMapping(value="/api/entries")
+@RequestMapping(value='${spring.data.rest.baseUri}/entries')
 class EntryController {
 
     @Autowired
-    EntriesRepository entryRepository;
+    EntryRepository entryRepository;
 
     @RequestMapping(method= RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)

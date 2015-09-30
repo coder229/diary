@@ -3,3 +3,4 @@
 build/
 Diary.iml
 /.nb-gradle/
+**/application-local.properties
